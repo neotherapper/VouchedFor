@@ -38,36 +38,36 @@ fs = require('fs');
 app.listen(4000);
 
 io.sockets.on('connection', function (socket) {
-    socket.on('newQuestion', function (data) {
-        fs.appendFile(__dirname+'/data.js', JSON.stringify(data) + '\n', function(err) {
-            if (err) throw err;
-            socket.emit('newQuestionSaved');
-        });
-    });
+	socket.on('newQuestion', function (data) {
+		fs.appendFile(__dirname+'/data.js', JSON.stringify(data) + '\n', function(err) {
+			if (err) throw err;
+			socket.emit('newQuestionSaved');
+		});
+	});
 
-    socket.on('pollUpdate', function(poll) {
-        var line, parsedLine, contents = fs.readFileSync(__dirname+'/data.js', {encoding: 'utf8'}).split('\n');
-        
-        for (line in contents) {
-            if (contents[line].length > 0) {
-                parsedLine = JSON.parse(contents[line]);
-                if (parsedLine.id == poll.id) {
-                    contents[line] = JSON.stringify(poll);
-                }
-            }
-            else contents.splice(line, 1);
-        }
+	socket.on('pollUpdate', function(poll) {
+		var line, parsedLine, contents = fs.readFileSync(__dirname+'/data.js', {encoding: 'utf8'}).split('\n');
+		
+		for (line in contents) {
+			if (contents[line].length > 0) {
+				parsedLine = JSON.parse(contents[line]);
+				if (parsedLine.id == poll.id) {
+					contents[line] = JSON.stringify(poll);
+				}
+			}
+			else contents.splice(line, 1);
+		}
 
-        fs.writeFile(__dirname+'/data.js', contents.join('\n'), function(err) {
-            if (err) throw err;
-            socket.emit('pollUpdateSuccess', poll);
-        });
-    });
+		fs.writeFile(__dirname+'/data.js', contents.join('\n'), function(err) {
+			if (err) throw err;
+			socket.emit('pollUpdateSuccess', poll);
+		});
+	});
 
-    socket.on('questionsRequest', function() {
-        fs.readFile(__dirname+'/data.js', {encoding: 'utf8'}, function(err, data) {
-            socket.emit('questionsData', data.split('\n'));
-        });
+	socket.on('questionsRequest', function() {
+		fs.readFile(__dirname+'/data.js', {encoding: 'utf8'}, function(err, data) {
+			socket.emit('questionsData', data.split('\n'));
+		});
 
-    }); 
+	});	
 });
